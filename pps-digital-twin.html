@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>276 Paadal Petra Sthalam - Digital Twin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #f5f2eb;
+            font-family: 'Poppins', sans-serif;
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #285050 0%, #3a6b6b 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            position: relative;
+            z-index: 100;
+        }
+
+        .header h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 28px;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .header .tamil {
+            font-size: 20px;
+            font-weight: 400;
+            margin-top: 5px;
+            font-family: serif;
+            letter-spacing: 1px;
+        }
+
+        .grid-wrapper {
+            display: flex;
+            height: calc(100vh - 120px);
+            overflow: hidden;
+        }
+
+        .grid-container {
+            flex: 1;
+            position: relative;
+            overflow: auto;
+            background: white;
+        }
+
+        .grid {
+            display: inline-grid;
+            grid-template-columns: repeat(16, 50px);
+            gap: 4px;
+            padding: 25px 27px;
+            background: #f5f2eb;
+            min-width: fit-content;
+            min-height: fit-content;
+        }
+
+        .grid-item {
+            width: 50px;
+            height: 68px;
+            background: #d6d2c8;
+            border: 1px solid #999;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            color: #555;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .grid-item:hover:not(.hero):not(.header-section):not(.footer-section) {
+            background: #ba7517;
+            transform: scale(1.05);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .grid-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .grid-item.loaded img {
+            opacity: 1;
+        }
+
+        .hero {
+            grid-column: span 4;
+            grid-row: span 3;
+            background: linear-gradient(135deg, #ba7517 0%, #8b5a0b 100%);
+            cursor: default;
+            flex-direction: column;
+            font-size: 14px;
+            font-weight: 600;
+            color: white;
+            text-align: center;
+        }
+
+        .hero:hover {
+            transform: none;
+            background: linear-gradient(135deg, #ba7517 0%, #8b5a0b 100%);
+        }
+
+        .header-section, .footer-section {
+            background: linear-gradient(135deg, #285050 0%, #3a6b6b 100%);
+            cursor: default;
+            color: white;
+            font-weight: 600;
+        }
+
+        .header-section:hover, .footer-section:hover {
+            transform: none;
+            background: linear-gradient(135deg, #285050 0%, #3a6b6b 100%);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(4px);
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(-30px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, #285050 0%, #3a6b6b 100%);
+            color: white;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .modal-close {
+            font-size: 24px;
+            cursor: pointer;
+            background: none;
+            border: none;
+            color: white;
+            transition: transform 0.2s;
+        }
+
+        .modal-close:hover {
+            transform: scale(1.2);
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .temple-image {
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .temple-info {
+            margin-bottom: 12px;
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: #285050;
+            font-size: 12px;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+
+        .info-value {
+            color: #333;
+            line-height: 1.6;
+            font-size: 14px;
+        }
+
+        .info-value.tamil {
+            font-size: 16px;
+        }
+
+        .footer {
+            background: linear-gradient(135deg, #285050 0%, #3a6b6b 100%);
+            color: white;
+            padding: 15px 20px;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.15);
+            position: relative;
+            z-index: 100;
+        }
+
+        .footer img {
+            height: 40px;
+            object-fit: contain;
+        }
+
+        .footer-text {
+            font-size: 12px;
+        }
+
+        .mantra-popup {
+            text-align: center;
+            font-size: 24px;
+            line-height: 1.8;
+            color: #285050;
+        }
+
+        @media (max-width: 1024px) {
+            .grid {
+                grid-template-columns: repeat(12, 40px);
+                padding: 20px;
+                gap: 3px;
+            }
+
+            .grid-item {
+                width: 40px;
+                height: 54px;
+            }
+
+            .header h1 {
+                font-size: 24px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .grid {
+                grid-template-columns: repeat(8, 35px);
+                padding: 15px;
+                gap: 2px;
+            }
+
+            .grid-item {
+                width: 35px;
+                height: 48px;
+            }
+
+            .header h1 {
+                font-size: 20px;
+            }
+
+            .header .tamil {
+                font-size: 16px;
+            }
+
+            .modal-content {
+                max-width: 95%;
+            }
+
+            .temple-image {
+                height: 200px;
+            }
+
+            .footer {
+                flex-direction: column;
+                gap: 10px;
+                padding: 10px;
+            }
+
+            .footer img {
+                height: 30px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .grid {
+                grid-template-columns: repeat(5, 30px);
+                padding: 10px;
+                gap: 2px;
+            }
+
+            .grid-item {
+                width: 30px;
+                height: 40px;
+                font-size: 8px;
+            }
+
+            .header h1 {
+                font-size: 18px;
+            }
+
+            .header .tamil {
+                font-size: 14px;
+            }
+
+            .header {
+                padding: 15px 10px;
+            }
+
+            .footer {
+                padding: 8px 10px;
+                gap: 8px;
+            }
+
+            .footer-text {
+                font-size: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>276 Paadal Petra Sthalam</h1>
+        <div class="tamil">பாடல் பெற்ற தலங்கள்</div>
+    </div>
+
+    <div class="grid-wrapper">
+        <div class="grid-container">
+            <div class="grid" id="grid"></div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABLAAAAEsCAYAAADTvUpQAAAACXBIWXMAAB7CAAAewgFu0HU+AAABGklEQVR4nOydBXgUV/fGz71jq3GBBHeXQqG0hbZQd3f39vva/uv21d3dXWhLhVKkVCgFiru7Qwhx" alt="TempleInt Labs">
+        <div class="footer-text">TempleInt Labs • Discover . Connect . Feel.</div>
+    </div>
+
+    <div class="modal" id="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title" id="modalTitle"></div>
+                <button class="modal-close" onclick="closeModal()">✕</button>
+            </div>
+            <div class="modal-body" id="modalBody"></div>
+        </div>
+    </div>
+
+    <script>
+        const IMAGE_BASE_URL = '/pps-images';
+        const csvContent = `1,cauvery_vadakarai,Koil Natarajar,நடராசர்,சிதம்பரம்,In Saivism, 'Koyil' itself means Chidambaram.
+2,cauvery_vadakarai,Thiruvetkalam Pasupatheswarar,பாசுபதேஸ்வரர்,திருவேட்களம்,At Arjuna's request, Shiva granted the Pasupata weapon.
+3,cauvery_vadakarai,Thirunelvayil Oochinatheswarar,உச்சிநாதேஸ்வரர்,திருநெல்வாயில்,Now known as Sivapuri, this shrine holds its own sthala history.`;
+
+        const templeMap = {};
+        let allTemples = [];
+
+        function parseCSV() {
+            const lines = `1,cauvery_vadakarai,Koil Natarajar,நடராசர்,சிதம்பரம்,In Saivism, 'Koyil' itself means Chidambaram.
+2,cauvery_vadakarai,Thiruvetkalam Pasupatheswarar,பாசுபதேஸ்வரர்,திருவேட்களம்,At Arjuna's request, Shiva granted the Pasupata weapon.
+3,cauvery_vadakarai,Thirunelvayil Oochinatheswarar,உச்சிநாதேஸ்வரர்,திருநெல்வாயில்,Now known as Sivapuri, this shrine holds its own sthala history.
+4,cauvery_vadakarai,Thirukkazhippalai Palvannanathar,பால்வண்ணநாதர்,திருக்கழிப்பாலை,The original shrine on the Kollidam's north bank was lost to floods.
+5,cauvery_vadakarai,Thirunallurpperumanam Sivalokathiyagesar,சிவலோகத் தியாகேசர்,திருநல்லூர்ப்பெருமணம்,At Achalpuram, Sambandar was married.`.split('\n');
+
+            allTemples = [];
+            for (let i = 0; i < 275; i++) {
+                if (i < lines.length) {
+                    const parts = lines[i].split(',');
+                    allTemples.push({
+                        no: i + 1,
+                        temple: parts[2],
+                        tamil: parts[4],
+                        deity: parts[3],
+                        desc: parts[5] || 'Sacred temple of devotion.'
+                    });
+                } else {
+                    allTemples.push({
+                        no: i + 1,
+                        temple: `Temple ${i + 1}`,
+                        tamil: `திருக்ஷேத்திரம் ${i + 1}`,
+                        deity: 'Lord Shiva',
+                        desc: 'Sacred abode blessed by divine grace.'
+                    });
+                }
+            }
+        }
+
+        function buildGrid() {
+            parseCSV();
+            const grid = document.getElementById('grid');
+            let heroPlaced = false;
+
+            for (let r = 0; r < 18; r++) {
+                for (let c = 0; c < 16; c++) {
+                    // Header row
+                    if (r === 0) {
+                        if (c === 0) {
+                            const div = document.createElement('div');
+                            div.className = 'grid-item header-section';
+                            div.style.gridColumn = 'span 16';
+                            grid.appendChild(div);
+                        }
+                        continue;
+                    }
+
+                    // Footer row
+                    if (r === 17) {
+                        if (c === 0) {
+                            const div = document.createElement('div');
+                            div.className = 'grid-item footer-section';
+                            div.style.gridColumn = 'span 16';
+                            grid.appendChild(div);
+                        }
+                        continue;
+                    }
+
+                    // Hero tile
+                    if (c >= 6 && c < 10 && r >= 7 && r < 10) {
+                        if (!heroPlaced) {
+                            const div = document.createElement('div');
+                            div.className = 'grid-item hero';
+                            div.style.gridColumn = 'span 4';
+                            div.style.gridRow = 'span 3';
+                            div.textContent = 'FEATURED';
+                            grid.appendChild(div);
+                            heroPlaced = true;
+                        }
+                        continue;
+                    }
+
+                    // Temple tiles
+                    const templeIndex = calculateIndex(r, c);
+                    if (templeIndex < 275) {
+                        const temple = allTemples[templeIndex];
+                        const div = document.createElement('div');
+                        div.className = 'grid-item';
+                        div.dataset.index = templeIndex;
+
+                        const img = document.createElement('img');
+                        img.src = `${IMAGE_BASE_URL}/${String(temple.no).padStart(3, '0')}.jpg`;
+                        img.onerror = () => {
+                            div.style.background = '#d6d2c8';
+                            div.textContent = String(temple.no).padStart(3, '0');
+                        };
+                        img.onload = () => div.classList.add('loaded');
+
+                        div.appendChild(img);
+                        div.textContent = String(temple.no).padStart(3, '0');
+                        div.onclick = () => templeIndex < 275 ? openModal(templeIndex) : openModal276();
+                        grid.appendChild(div);
+                    }
+                }
+            }
+        }
+
+        function calculateIndex(row, col) {
+            let count = 0;
+            for (let r = 1; r < row; r++) {
+                for (let c = 0; c < 16; c++) {
+                    if (!(c >= 6 && c < 10 && r >= 7 && r < 10)) count++;
+                }
+            }
+            for (let c = 0; c < col; c++) {
+                if (!(c >= 6 && c < 10 && row >= 7 && row < 10)) count++;
+            }
+            return count;
+        }
+
+        function openModal(index) {
+            const temple = allTemples[index];
+            document.getElementById('modalTitle').textContent = temple.temple;
+            document.getElementById('modalBody').innerHTML = `
+                <img src="${IMAGE_BASE_URL}/${String(temple.no).padStart(3, '0')}.jpg" class="temple-image" onerror="this.style.display='none'">
+                <div class="temple-info">
+                    <div class="info-label">Tamil Name</div>
+                    <div class="info-value tamil">${temple.tamil}</div>
+                </div>
+                <div class="temple-info">
+                    <div class="info-label">Deity</div>
+                    <div class="info-value">${temple.deity}</div>
+                </div>
+                <div class="temple-info">
+                    <div class="info-label">Description</div>
+                    <div class="info-value">${temple.desc}</div>
+                </div>
+            `;
+            document.getElementById('modal').classList.add('active');
+        }
+
+        function openModal276() {
+            document.getElementById('modalTitle').textContent = 'Completion Mantra';
+            document.getElementById('modalBody').innerHTML = `
+                <div class="mantra-popup">நாற்றுணை ஆவதும் நமச்சிவாய வே !</div>
+                <img src="${IMAGE_BASE_URL}/276.jpg" class="temple-image" onerror="this.style.display='none'">
+            `;
+            document.getElementById('modal').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('modal').classList.remove('active');
+        }
+
+        window.addEventListener('DOMContentLoaded', buildGrid);
+        document.addEventListener('keydown', (e) => e.key === 'Escape' && closeModal());
+        document.getElementById('modal').addEventListener('click', (e) => {
+            if (e.target.id === 'modal') closeModal();
+        });
+    </script>
+</body>
+</html>
